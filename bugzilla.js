@@ -32,6 +32,76 @@ function get_components() {
 function selected_from_url() {
   var sp = new URLSearchParams(window.location.search);
   var components = new Set(sp.getAll("component"));
+  if (components.size == 0) {
+
+    let docs = new Set([
+      "Developer Documentation:Accessibility",
+      "Developer Documentation:Add-ons",
+      "Developer Documentation:API: CSSOM",
+      "Developer Documentation:API: Device API",
+      "Developer Documentation:API: DOM",
+      "Developer Documentation:API: File API",
+      "Developer Documentation:API: HTML",
+      "Developer Documentation:API: IndexedDB",
+      "Developer Documentation:API: Miscellaneous",
+      "Developer Documentation:API: SVG",
+      "Developer Documentation:API: Web Animations",
+      "Developer Documentation:API: Web Audio",
+      "Developer Documentation:API: Web Sockets",
+      "Developer Documentation:API: Web Workers",
+      "Developer Documentation:API: WebRTC",
+      "Developer Documentation:Apps",
+      "Developer Documentation:CSS",
+      "Developer Documentation:Developer Tools",
+      "Developer Documentation:Emscripten",
+      "Developer Documentation:Firefox OS",
+      "Developer Documentation:Games",
+      "Developer Documentation:General",
+      "Developer Documentation:HTML",
+      "Developer Documentation:JavaScript",
+      "Developer Documentation:Learning Area",
+      "Developer Documentation:Localization",
+      "Developer Documentation:Macros & Templates",
+      "Developer Documentation:Marketplace",
+      "Developer Documentation:MathML",
+      "Developer Documentation:MDN Meta Docs",
+      "Developer Documentation:Protocols",
+      "Developer Documentation:Security",
+      "Developer Documentation:SVG"]);
+
+    let kuma = new Set([
+      "Mozilla Developer Network:Account Help",
+      "Mozilla Developer Network:API",
+      "Mozilla Developer Network:Code Cleanup",
+      "Mozilla Developer Network:Collaboration",
+      "Mozilla Developer Network:Dashboards",
+      "Mozilla Developer Network:Demo Studio / Dev Derby",
+      "Mozilla Developer Network:Design",
+      "Mozilla Developer Network:Editing",
+      "Mozilla Developer Network:Events",
+      "Mozilla Developer Network:File attachments",
+      "Mozilla Developer Network:General",
+      "Mozilla Developer Network:KumaScript",
+      "Mozilla Developer Network:Localization",
+      "Mozilla Developer Network:Marketing",
+      "Mozilla Developer Network:Performance",
+      "Mozilla Developer Network:Profiles",
+      "Mozilla Developer Network:Search",
+      "Mozilla Developer Network:Security",
+      "Mozilla Developer Network:Setup / Install",
+      "Mozilla Developer Network:Sign-in",
+      "Mozilla Developer Network:Tags / flags",
+      "Mozilla Developer Network:User management",
+      "Mozilla Developer Network:Wiki pages"]);
+
+    let category = sp.get("category");
+    if (category === "kuma") {
+      components = kuma;
+    } else  if (category === "docs") {
+      components = docs;
+    }
+
+  }
   gComponents.forEach(function(c) {
     var test = c.product_name + ":" + c.component_name;
     c.selected = components.has(test);
@@ -41,7 +111,7 @@ function selected_from_url() {
 
 $(function() {
   $(".badge").hide();
-  $("#tabs").tabs({ heightStyle: "fill", active: 1 });
+  $("#tabs").tabs({ heightStyle: "fill", active: 2 });
   $("#stale-inner").accordion({ heightStyle: "content", collapsible: true, active: false });
 
   get_components().then(setup_components).then(() => {
@@ -124,19 +194,9 @@ function setup_queries() {
   });
 
   var to_triage = make_search({
-    priority: "--",
-    n1: 1,
-    f1: "flagtypes.name",
-    o1: "substring",
-    v1: "needinfo",
-    email1: "intermittent-bug-filer@mozilla.bugs",
-    emailtype1: "notequals",
-    emailreporter1: 1,
+    priority: ["--"],
     resolution: "---",
-    chfield: "[Bug creation]",
-    chfieldto: "Now",
     query_format: "advanced",
-    chfieldfrom: "2016-06-01",
   }, common_params);
   document.getElementById("triage-list").href = "https://bugzilla.mozilla.org/buglist.cgi?" + to_triage.toString();
   populate_table($("#need-decision"), to_triage, $("#need-decision-marker"), !!selected.length);
@@ -153,54 +213,47 @@ function setup_queries() {
   }, common_params);
   document.getElementById("stuck-list").href = "https://bugzilla.mozilla.org/buglist.cgi?" + stale_needinfo.toString();
   populate_table($("#needinfo-stale"), stale_needinfo, $("#needinfo-stale-marker"), !!selected.length);
-
-  var stale_review = make_search({
-    f1: "flagtypes.name",
-    o1: "regexp",
-    v1: "^(review|superreview|ui-review|feedback|a11y-review)\\?",
+  
+  var p1 = make_search({
+    priority: ["P1"],
     resolution: "---",
-    f2: "delta_ts",
-    o2: "lessthan", // means "older than"
-    v2: "5d",
     query_format: "advanced",
   }, common_params);
-  document.getElementById("review-list").href = "https://bugzilla.mozilla.org/buglist.cgi?" + stale_review.toString();
-  populate_table($("#review-stale"), stale_review, $("#review-stale-marker"), !!selected.length);
-
-  var stale_decision = make_search({
-    keywords: "regression",
-    keywords_type: "allwords",
-    v1: "affected,unaffected,fixed,verified,disabled,verified disabled,wontfix,fix-optional",
-    chfieldto: "Now",
-    o1: "nowords",
-    chfield: "[Bug creation]",
-    chfieldfrom: "2017-08-03", // change to date of first nightly of next version at release
-    f1: "cf_status_firefox57", // change to next version at release
+  document.getElementById("p1-list").href = "https://bugzilla.mozilla.org/buglist.cgi?" + p1.toString();
+  populate_table($("#p1"), p1, $("#p1-marker"), !!selected.length);
+  
+  var p2 = make_search({
+    priority: ["P2"],
     resolution: "---",
-    query_format: "advanced"
-  }, common_params);
-
-  document.getElementById("decision-list").href = "https://bugzilla.mozilla.org/buglist.cgi?" + stale_decision.toString();
-  populate_table($("#decision-stale"), stale_decision, $("#decision-stale-marker"), !!selected.length);
-
-  var stale_range = make_search({
-    chfield: "[Bug creation]",
-    chfieldfrom: "2017-08-03", // change to date of first nightly of next version at release
-    chfieldto: "Now",
-    f1: "cf_status_firefox57", // increment version numbers at release 
-    f2: "cf_status_firefox58",
-    j_top: "OR",
-    keywords: "regression",
-    keywords_type: "allwords",
-    o1: "nowords",
-    o2: "nowords",
     query_format: "advanced",
-    resolution: "---",
-    v1: "affected,unaffected,fixed,verified,disabled,verified disabled,wontfix,fix-optional",
-    v2: "affected,unaffected,fixed,verified,disabled,verified disabled,wontfix,fix-optional"
   }, common_params);
-  document.getElementById("range-list").href = "https://bugzilla.mozilla.org/buglist.cgi?" + stale_range.toString();
-  populate_table($("#range-stale"), stale_range, $("#range-stale-marker"), !!selected.length);
+  document.getElementById("p2-list").href = "https://bugzilla.mozilla.org/buglist.cgi?" + p2.toString();
+  populate_table($("#p2"), p2, $("#p2-marker"), !!selected.length);
+  
+  var p3 = make_search({
+    priority: ["P3"],
+    resolution: "---",
+    query_format: "advanced",
+  }, common_params);
+  document.getElementById("p3-list").href = "https://bugzilla.mozilla.org/buglist.cgi?" + p3.toString();
+  populate_table($("#p3"), p3, $("#p3-marker"), !!selected.length);
+  
+  var p4 = make_search({
+    priority: ["P4"],
+    resolution: "---",
+    query_format: "advanced",
+  }, common_params);
+  document.getElementById("p4-list").href = "https://bugzilla.mozilla.org/buglist.cgi?" + p4.toString();
+  populate_table($("#p4"), p4, $("#p4-marker"), !!selected.length);
+  
+  var p5 = make_search({
+    priority: ["P5"],
+    resolution: "---",
+    query_format: "advanced",
+  }, common_params);
+  document.getElementById("p5-list").href = "https://bugzilla.mozilla.org/buglist.cgi?" + p5.toString();
+  populate_table($("#p5"), p5, $("#p5-marker"), !!selected.length);
+
 }
 
 function navigate_url() {
@@ -230,7 +283,7 @@ function make_search(o, base) {
 }
 
 function bug_component(d) {
-  return d.product + ": " + d.component;
+  return d.component;
 }
 
 function bug_description(d) {
@@ -242,13 +295,12 @@ function bug_description(d) {
 }
 
 function bug_users(d) {
-  var s = "Owner: " + d.assigned_to;
-  s += " Reporter: " + d.creator;
+  var s = d.assigned_to;
   return s;
 }
 
 function bug_created(d) {
-  return d3.time.format("%Y-%m-%d %H:%M")(new Date(d.creation_time));
+  return d3.time.format("%Y-%m-%d")(new Date(d.creation_time));
 }
 
 function bug_priority(d) {

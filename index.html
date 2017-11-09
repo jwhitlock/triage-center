@@ -14,7 +14,7 @@
     <ul>
       <li><a href="#intro">Introduction</a></li>
       <li><a href="#component-selector">Components</a></li>
-      <li><a href="#stale">Attention Needed <span class="badge"></span></a></li>
+      <li><a href="#stale">Bug lists <span class="badge"></span></a></li>
     </ul>
     <section id="intro">
       <h1>Mozilla Bug Triage</h1>
@@ -55,7 +55,7 @@
       </section>
     </section>
     <section id="stale">
-      <h2>Attention Needed</h2>
+      <h2>Bug lists</h2>
       <div id="stale-inner">
         <h3>Triage decision needed <span id="need-decision-marker" class="marker"></span></h3>
         <section id="need-decision">
@@ -78,10 +78,10 @@
             </table>
           </p>
         </section>
-
-        <h3>Requests &gt; 5 days <span id="review-stale-marker" class="marker"></span></h3>
-        <section id="review-stale">
-          <p><a href="#" target="_blank" id="review-list">View as bug list</a></p>
+        
+        <h3>P1 – fix this quarter (assignee required) <span id="p1-marker" class="marker"></span></h3>
+        <section id="p1">
+          <p><a href="#" target="_blank" id="p1-list">View as bug list</a></p>
           <div class="p"></div>
           <p>
             <table class="bugtable">
@@ -89,10 +89,10 @@
             </table>
           </p>
         </section>
-
-        <h3>Regressions that need a decision for next release <span id="decision-stale-marker" class="marker"></span></h3>
-        <section id="decision-stale">
-          <p><a href="#" target="_blank" id="decision-list">View as bug list</a></p>
+        
+        <h3>P2 – fix next quarter <span id="p2-marker" class="marker"></span></h3>
+        <section id="p2">
+          <p><a href="#" target="_blank" id="p2-list">View as bug list</a></p>
           <div class="p"></div>
           <p>
             <table class="bugtable">
@@ -100,18 +100,40 @@
             </table>
           </p>
         </section>
-
-        <h3>Regressions without status flags <span id="range-stale-marker" class="marker"></span></h3>
-        <section id="range-stale">
-          <p><a href="#" target="_blank" id="range-list">View as bug list</a></p>
+        
+        <h3>P3 – backlog (staff will fix) <span id="p3-marker" class="marker"></span></h3>
+        <section id="p3">
+          <p><a href="#" target="_blank" id="p3-list">View as bug list</a></p>
           <div class="p"></div>
           <p>
             <table class="bugtable">
               <tbody></tbody>
             </table>
           </p>
-        </section>   
-     
+        </section>
+        
+        <h3>P4 – backlog (should be P3) <span id="p4-marker" class="marker"></span></h3>
+        <section id="p4">
+          <p><a href="#" target="_blank" id="p4-list">View as bug list</a></p>
+          <div class="p"></div>
+          <p>
+            <table class="bugtable">
+              <tbody></tbody>
+            </table>
+          </p>
+        </section>
+        
+        <h3>P5 – Staff wont fix (will accept patch) <span id="p5-marker" class="marker"></span></h3>
+        <section id="p5">
+          <p><a href="#" target="_blank" id="p5-list">View as bug list</a></p>
+          <div class="p"></div>
+          <p>
+            <table class="bugtable">
+              <tbody></tbody>
+            </table>
+          </p>
+        </section>
+             
       </div>
     </section>
   </section>
